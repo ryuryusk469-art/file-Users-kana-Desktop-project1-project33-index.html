@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>「〜になる」Grammar Flashcards</title>
+    <style>
+        :root {
+            --na-color: #ff6b6b;
+            --noun-color: #4ecdc4;
+            --i-color: #ffbe0b;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 92vh;
+            min-height: 620px;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .app-header h1 { margin: 0; font-size: 1.3rem; }
+        .app-header p { margin: 5px 0 0 0; font-size: 0.85rem; opacity: 0.9; }
+
+        .nav-tabs {
+            display: flex;
+            background: #f1f3f5;
+            padding: 6px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 12px 5px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 12px;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active[data-type="na"] { background: var(--na-color); color: white; }
+        .tab-btn.active[data-type="noun"] { background: var(--noun-color); color: white; }
+        .tab-btn.active[data-type="i"] { background: var(--i-color); color: #2d3436; }
+
+        .content-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: none;
+        }
+
+        .content-section.active { display: block; }
+
+        .rule-badge {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .rule-na { background: #ffe3e3; color: var(--na-color); }
+        .rule-noun { background: #e6fffa; color: var(--noun-color); }
+        .rule-i { background: #fff9db; color: #b78103; }
+
+        .flashcard {
+            background: #fff;
+            border: 2px solid #e9ecef;
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .flashcard:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.04);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .base-word {
+            font-size: 0.9rem;
+            color: #868e96;
+            background: #f1f3f5;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .audio-btn {
+            background: #f1f3f5;
+            border: none;
+            border-radius: 50%;
+            width: 34px;
+            height: 34px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .audio-btn:hover { background: #e9ecef; }
+
+        .main-phrase {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #212529;
+            margin: 5px 0;
+        }
+
+        .answer-block {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #dee2e6;
+            display: none;
+        }
+
+        .flashcard.revealed .answer-block {
+            display: block;
+        }
+
+        .tap-hint {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #adb5bd;
+            margin-top: 5px;
+        }
+
+        .flashcard.revealed .tap-hint { display: none; }
+
+        .transformed-text {
+            font-size: 1.2rem;
+            color: #e64980;
+            font-weight: bold;
+            margin: 0 0 4px 0;
+        }
+        
+        .noun .transformed-text { color: #0ca678; }
+        .i .transformed-text { color: #f59f00; }
+
+        .romaji-text {
+            font-size: 0.85rem;
+            color: #495057;
+            font-style: italic;
+            margin: 0 0 6px 0;
+        }
+
+        .en-text {
+            font-size: 0.9rem;
+            color: #495057;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="app-header">
+        <h1>✨ 「〜になる」Grammar App</h1>
+        <p>Tap a card to reveal the answer and practice! 🔊</p>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="tab-btn active" data-type="na" onclick="switchTab('na-sec')">① な-adj (image_b4afea.jpg)</button>
+        <button class="tab-btn" data-type="noun" onclick="switchTab('noun-sec')">② Noun (image_b4acc7.jpg)</button>
+        <button class="tab-btn" data-type="i" onclick="switchTab('i-sec')">③ い-adj (image_b4aca0.jpg)</button>
+    </div>
+
+    <!-- な形容詞セクション -->
+    <div id="na-sec" class="content-section active">
+        <div class="rule-badge rule-na">な形容詞 ＋ になる (Drop "na" + ni naru)</div>
+        
+        <!-- 静か -->
+        <div class="flashcard na" onclick="toggleCard(this)">
+            <div class="card-top">
+                <span class="base-word">静か (shizuka)</span>
+                <button class="audio-btn" onclick="speak('静かになる', event)">🔊</button>
+            </div>
+            <div class="main-phrase">静か ➔ ❓❓❓</div>
+            <div class="answer-block">
+                <p class="transformed-text">静かになる</p>
+                <p class="romaji-text">shizuka ni naru</p>
+                <p class="en-text">＝ to become quiet/quieter</p>
+            </div>
+            <div class="tap-hint">Tap to see answer</div>
+        </div>
+
+        <!-- 上手 -->
+        <div class="flashcard na" onclick="toggleCard(this)">
+            <div class="card-top">
+                <span class="base-word">上手 (jōzu)</span>
+                <button class="audio-btn" onclick="speak('上手になる', event)">🔊</button>
+            </div>
+            <div class="main-phrase">上手 ➔ ❓❓❓</div>
+            <div class="answer-block">
+                <p class="transformed-text">上手になる</p>
+                <p class="romaji-text">jōzu ni naru</p>
+                <p class="en-text">＝ to become good / to improve</p>
+            </div>
+            <div class="tap-hint">Tap to see answer</div>
+        </div>
+
+        <!-- 便利 -->
+        <div class="flashcard na" onclick="toggleCard(this)">
+            <div class="card-top">
+                <span class="base-word">便利 (benri)</span>
+                <button class="audio-btn" onclick="speak('便利になる', event)">🔊</button>
+            </div>
+            <div class="main-phrase">便利 ➔ ❓❓❓</div>
+            <div class="answer-block">
+                <p class="transformed-text">便利になる</p>
+                <p class="romaji-text">benri ni naru</p>
+                <p class="en-text">＝ to become convenient</p>
+            </div>
+            <div class="tap-hint">Tap to see answer</div>
+        </div>
+    </div>
+
+    <!-- 名詞セクション -->
+    <div id="noun-sec" class="content-section">
+        <div class="rule-badge rule-noun">名詞 ＋ になる (Noun + ni naru)</div>
+        
+        <!-- 会社員 -->
+        <div class="flashcard noun" onclick="toggleCard(this)">
+            <div class="card-top">
+                <span class="base-word">会社員 (kaishain)</span>
+                <button class="audio-btn" onclick="speak('会社員になる', event)">🔊</button>
+            </div>
+            <div class="main-phrase">会社員 ➔ ❓❓❓</div>
+            <div class="answer-block">
+                <p class="transformed-text">会社員になる</p>
+                <p class="romaji-text">kaishain ni naru</p>
+                <p class="en-text">＝ to become a company employee</p>
+            </div>
+            <div class="tap-hint">Tap to see answer</div>
+        </div>
+
+        <!-- 冬 -->
+        <div class="flashcard noun" onclick="toggleCard(this)">
+            <div class="card-top">
+                <span class="base-word">冬 (fuyu)</span>
+                <button class="audio-btn" onclick="speak('冬になる', event)">🔊</button>
+            </div>
+            <div class="main-phrase">冬 ➔ ❓❓❓</div>
+            <div class="answer-block">
+                <p class="transformed-text">冬になる</p>
+                <p class="romaji-text">fuyu ni naru</p>
+                <p class="en-text">＝ to become winter</p>
+            </div>
+            <div class="tap-hint">Tap to see answer</div>
+        </div>
+    </div>
+
+    <!-- い形容詞セクション -->
+    <div id="i-sec" class="content-section">
+        <div class="rule-badge rule-i">い形容詞 ➔ 〜くなる (Drop "i" + ku naru)</div>
+        
+        <!-- 暖かい -->
+        <div class="flashcard i" onclick="toggleCard(this)">
+            <div class="card-top">
+                <span class="base-word">暖かい (atatakai)</span>
+                <button class="audio-btn" onclick="speak('暖かくなる', event)">🔊</button>
+            </div>
+            <div class="main-phrase">暖かい ➔ ❓❓❓</div>
+            <div class="answer-block">
+                <p class="transformed-text">暖かくなる</p>
+                <p class="romaji-text">akatakaku naru</p>
+                <p class="en-text">＝ to become warm / warmer</p>
+            </div>
+            <div class="tap-hint">Tap to see answer</div>
+        </div>
+
+        <!-- 暑い -->
+        <div class="flashcard i" onclick="toggleCard(this)">
+            <div class="card-top">
+                <span class="base-word">暑い (atsui)</span>
+                <button class="audio-btn" onclick="speak('暑くなる', event)">🔊</button>
+            </div>
+            <div class="main-phrase">暑い ➔ ❓❓❓</div>
+            <div class="answer-block">
+                <p class="transformed-text">暑くなる</p>
+                <p class="romaji-text">atsuku naru</p>
+                <p class="en-text">＝ to become hot / hotter</p>
+            </div>
+            <div class="tap-hint">Tap to see answer</div>
+        </div>
+
+        <!-- 速い -->
+        <div class="flashcard i" onclick="toggleCard(this)">
+            <div class="card-top">
+                <span class="base-word">速い (hayai)</span>
+                <button class="audio-btn" onclick="speak('速くなる', event)">🔊</button>
+            </div>
+            <div class="main-phrase">速い ➔ ❓❓❓</div>
+            <div class="answer-block">
+                <p class="transformed-text">速くなる</p>
+                <p class="romaji-text">hayaku naru</p>
+                <p class="en-text">＝ to become fast / faster</p>
+            </div>
+            <div class="tap-hint">Tap to see answer</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchTab(tabId) {
+        document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    function toggleCard(card) {
+        card.classList.toggle('revealed');
+    }
+
+    function speak(text, event) {
+        event.stopPropagation(); // カードが閉じたり開いたりするのを防ぐ
+        window.speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ja-JP';
+        utterance.rate = 0.85; // 学習用に少しだけゆっくり
+        window.speechSynthesis.speak(utterance);
+    }
+</script>
+
+</body>
+</html>
